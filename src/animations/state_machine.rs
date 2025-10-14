@@ -333,13 +333,15 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
             let mass_inv = 1.0 / spring.mass;
 
             const FIXED_DT: f32 = 1.0 / 120.0;
-            let steps = ((dt / FIXED_DT) as usize).max(1);
+            let steps = (dt / FIXED_DT).ceil().max(1.0) as usize;
             let step_dt = dt / steps as f32;
 
             for _ in 0..steps {
+                let delta = motion.target - motion.current;
                 let force = delta * stiffness;
                 let damping_force = motion.velocity * damping;
-                motion.velocity = motion.velocity + (force - damping_force) * (mass_inv * step_dt);
+                let acceleration = (force - damping_force) * mass_inv;
+                motion.velocity = motion.velocity + acceleration * step_dt;
                 motion.current = motion.current + motion.velocity * step_dt;
             }
         }

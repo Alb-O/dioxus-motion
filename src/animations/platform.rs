@@ -101,7 +101,8 @@ impl TimeProvider for MotionTime {
             // Threshold-based sleep optimization
             const MIN_SPIN_THRESHOLD: Duration = Duration::from_millis(1);
 
-            if duration > MIN_SPIN_THRESHOLD {
+            // Treat 1ms delays as "long" sleeps to avoid immediately yielding at the threshold
+            if duration >= MIN_SPIN_THRESHOLD {
                 let start = Instant::now();
 
                 // Use tokio sleep for longer durations
