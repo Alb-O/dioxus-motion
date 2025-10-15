@@ -28,6 +28,16 @@ pub trait Animatable:
     /// Used for determining animation completion
     fn magnitude(&self) -> f32;
 
+    /// Returns the zero value for the type.
+    ///
+    /// The default implementation simply falls back to [`Default`],
+    /// but complex types like transforms can override this to provide a
+    /// mathematically correct zero that differs from their `Default`
+    /// representation (e.g. identity matrices vs. zero matrices).
+    fn zero() -> Self {
+        Self::default()
+    }
+
     /// Returns the epsilon threshold for this type
     /// Default implementation provides a reasonable value for most use cases
     fn epsilon() -> f32 {

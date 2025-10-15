@@ -59,7 +59,7 @@ impl<T: Animatable + Send + 'static> Motion<T> {
             initial,
             current: initial,
             target: initial,
-            velocity: T::default(),
+            velocity: T::zero(),
             running: false,
             elapsed: Duration::default(),
             delay_elapsed: Duration::default(),
@@ -85,7 +85,7 @@ impl<T: Animatable + Send + 'static> Motion<T> {
         self.running = true;
         self.elapsed = Duration::default();
         self.delay_elapsed = Duration::default();
-        self.velocity = T::default();
+        self.velocity = T::zero();
         self.current_loop = 0;
 
         // Update config handle
@@ -126,7 +126,7 @@ impl<T: Animatable + Send + 'static> Motion<T> {
         self.keyframe_animation = Some(Arc::new(animation.clone()));
         self.running = true;
         self.elapsed = Duration::default();
-        self.velocity = T::default();
+        self.velocity = T::zero();
 
         // Set up state machine for keyframe animation
         self.animation_state =
@@ -163,7 +163,7 @@ impl<T: Animatable + Send + 'static> Motion<T> {
         self.value_cache = None;
         self.running = false;
         self.current_loop = 0;
-        self.velocity = T::default();
+        self.velocity = T::zero();
         self.sequence = None;
         self.keyframe_animation = None;
         self.animation_state = AnimationState::new_idle();

@@ -194,7 +194,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                 motion.running = true;
                 motion.elapsed = Duration::default();
                 motion.delay_elapsed = Duration::default();
-                motion.velocity = T::default();
+                motion.velocity = T::zero();
 
                 // Update config handle for new step
                 global::modify_config(config_handle, |pooled_config| {
@@ -209,7 +209,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
             sequence.execute_completion();
             motion.running = false;
             motion.current_loop = 0;
-            motion.velocity = T::default();
+            motion.velocity = T::zero();
             motion.sequence = None;
             motion.keyframe_animation = None;
             *self = Self::Idle;
@@ -321,7 +321,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
         let delta = motion.target - motion.current;
         if delta.magnitude() < epsilon && motion.velocity.magnitude() < epsilon {
             motion.current = motion.target;
-            motion.velocity = T::default();
+            motion.velocity = T::zero();
             return SpringState::Completed;
         }
 
@@ -389,7 +389,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
 
         if velocity_sq < epsilon_sq && delta_sq < epsilon_sq {
             motion.current = motion.target;
-            motion.velocity = T::default();
+            motion.velocity = T::zero();
             SpringState::Completed
         } else {
             SpringState::Active
@@ -441,7 +441,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
             LoopMode::Infinite => {
                 motion.current = motion.initial;
                 motion.elapsed = Duration::default();
-                motion.velocity = T::default();
+                motion.velocity = T::zero();
                 motion.running = true; // Ensure animation continues running
                 true
             }
@@ -450,7 +450,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                 if motion.current_loop >= count {
                     motion.running = false;
                     motion.current_loop = 0;
-                    motion.velocity = T::default();
+                    motion.velocity = T::zero();
                     motion.sequence = None;
                     motion.keyframe_animation = None;
                     *self = Self::Idle;
@@ -458,7 +458,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                 } else {
                     motion.current = motion.initial;
                     motion.elapsed = Duration::default();
-                    motion.velocity = T::default();
+                    motion.velocity = T::zero();
                     motion.running = true; // Ensure animation continues running
                     true
                 }
@@ -470,7 +470,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                 // Start the reverse animation from the current position
                 motion.current = motion.initial;
                 motion.elapsed = Duration::default();
-                motion.velocity = T::default();
+                motion.velocity = T::zero();
                 motion.running = true; // Ensure animation continues running
                 true
             }
@@ -479,7 +479,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                 if motion.current_loop >= count * 2 {
                     motion.running = false;
                     motion.current_loop = 0;
-                    motion.velocity = T::default();
+                    motion.velocity = T::zero();
                     motion.sequence = None;
                     motion.keyframe_animation = None;
                     *self = Self::Idle;
@@ -491,7 +491,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
                     // Start the reverse animation from the current position
                     motion.current = motion.initial;
                     motion.elapsed = Duration::default();
-                    motion.velocity = T::default();
+                    motion.velocity = T::zero();
                     motion.running = true; // Ensure animation continues running
                     true
                 }

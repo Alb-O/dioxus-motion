@@ -238,16 +238,16 @@ impl<T: Animatable> SpringIntegrator<T> {
     /// Creates a new spring integrator with default-initialized buffers
     pub fn new() -> Self {
         Self {
-            k1_pos: T::default(),
-            k1_vel: T::default(),
-            k2_pos: T::default(),
-            k2_vel: T::default(),
-            k3_pos: T::default(),
-            k3_vel: T::default(),
-            k4_pos: T::default(),
-            k4_vel: T::default(),
-            temp_pos: T::default(),
-            temp_vel: T::default(),
+            k1_pos: T::zero(),
+            k1_vel: T::zero(),
+            k2_pos: T::zero(),
+            k2_vel: T::zero(),
+            k3_pos: T::zero(),
+            k3_vel: T::zero(),
+            k4_pos: T::zero(),
+            k4_vel: T::zero(),
+            temp_pos: T::zero(),
+            temp_vel: T::zero(),
         }
     }
 
@@ -315,16 +315,16 @@ impl<T: Animatable> SpringIntegrator<T> {
 
     /// Resets all buffers to default values (for pool reuse)
     pub fn reset(&mut self) {
-        self.k1_pos = T::default();
-        self.k1_vel = T::default();
-        self.k2_pos = T::default();
-        self.k2_vel = T::default();
-        self.k3_pos = T::default();
-        self.k3_vel = T::default();
-        self.k4_pos = T::default();
-        self.k4_vel = T::default();
-        self.temp_pos = T::default();
-        self.temp_vel = T::default();
+        self.k1_pos = T::zero();
+        self.k1_vel = T::zero();
+        self.k2_pos = T::zero();
+        self.k2_vel = T::zero();
+        self.k3_pos = T::zero();
+        self.k3_vel = T::zero();
+        self.k4_pos = T::zero();
+        self.k4_vel = T::zero();
+        self.temp_pos = T::zero();
+        self.temp_vel = T::zero();
     }
 }
 

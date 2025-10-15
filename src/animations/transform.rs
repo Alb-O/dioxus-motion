@@ -144,6 +144,10 @@ impl Animatable for Transform {
             .sqrt()
     }
 
+    fn zero() -> Self {
+        Transform::new(0.0, 0.0, 0.0, 0.0)
+    }
+
     // Uses default epsilon of 0.01 from the trait - no need for TRANSFORM_EPSILON
 }
 
@@ -168,6 +172,15 @@ mod tests {
         assert_eq!(transform.y, 0.0);
         assert_eq!(transform.scale, 1.0);
         assert_eq!(transform.rotation, 0.0);
+    }
+
+    #[test]
+    fn test_transform_zero() {
+        let zero = <Transform as Animatable>::zero();
+        assert_eq!(zero.x, 0.0);
+        assert_eq!(zero.y, 0.0);
+        assert_eq!(zero.scale, 0.0);
+        assert_eq!(zero.rotation, 0.0);
     }
 
     #[test]
