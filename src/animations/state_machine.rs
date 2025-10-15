@@ -327,22 +327,37 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
 
         #[cfg(feature = "web")]
         {
-            // Web: Use fixed timestep for better performance
-            let stiffness = spring.stiffness;
-            let damping = spring.damping;
-            let mass_inv = 1.0 / spring.mass;
-
             const FIXED_DT: f32 = 1.0 / 120.0;
             let steps = (dt / FIXED_DT).ceil().max(1.0) as usize;
             let step_dt = dt / steps as f32;
 
-            for _ in 0..steps {
-                let delta = motion.target - motion.current;
-                let force = delta * stiffness;
-                let damping_force = motion.velocity * damping;
-                let acceleration = (force - damping_force) * mass_inv;
-                motion.velocity = motion.velocity + acceleration * step_dt;
-                motion.current = motion.current + motion.velocity * step_dt;
+            if let Some(handle) = motion.spring_integrator_handle().copied() {
+                for _ in 0..steps {
+                    let (new_pos, new_vel) = crate::pool::integrator::integrate_rk4(
+                        &handle,
+                        motion.current,
+                        motion.velocity,
+                        motion.target,
+                        &spring,
+                        step_dt,
+                    );
+                    motion.current = new_pos;
+                    motion.velocity = new_vel;
+                }
+            } else {
+                // Fallback to semi-implicit Euler when no integrator is available
+                let stiffness = spring.stiffness;
+                let damping = spring.damping;
+                let mass_inv = 1.0 / spring.mass;
+
+                for _ in 0..steps {
+                    let delta = motion.target - motion.current;
+                    let force = delta * stiffness;
+                    let damping_force = motion.velocity * damping;
+                    let acceleration = (force - damping_force) * mass_inv;
+                    motion.velocity = motion.velocity + acceleration * step_dt;
+                    motion.current = motion.current + motion.velocity * step_dt;
+                }
             }
         }
 
@@ -350,6 +365,7 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
         {
             // Native: Use RK4 for better accuracy with pooled integrator
             let (new_pos, new_vel) = self.perform_rk4_integration(
+                motion,
                 motion.current,
                 motion.velocity,
                 motion.target,
@@ -497,16 +513,28 @@ impl<T: Animatable + Send + 'static> AnimationState<T> {
     #[cfg(not(feature = "web"))]
     fn perform_rk4_integration(
         &self,
+        motion: &crate::Motion<T>,
         current_pos: T,
         current_vel: T,
         target: T,
         spring: &Spring,
         dt: f32,
     ) -> (T, T) {
-        // Use a local integrator for now - pooling can be added later
-        use crate::pool::SpringIntegrator;
-        let mut integrator = SpringIntegrator::new();
-        integrator.integrate_rk4(current_pos, current_vel, target, spring, dt)
+        if let Some(handle) = motion.spring_integrator_handle().copied() {
+            crate::pool::integrator::integrate_rk4(
+                &handle,
+                current_pos,
+                current_vel,
+                target,
+                spring,
+                dt,
+            )
+        } else {
+            // Use a local integrator when no pooled integrator handle is available
+            use crate::pool::SpringIntegrator;
+            let mut integrator = SpringIntegrator::new();
+            integrator.integrate_rk4(current_pos, current_vel, target, spring, dt)
+        }
     }
 }
 
